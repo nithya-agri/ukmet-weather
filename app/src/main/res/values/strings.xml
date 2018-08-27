@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">KisanHub Android Assignment</string>
+    <string name="uk_met_office">UK Met Office</string>
+    <string name="loading_data">Loading data...</string>
+</resources>
