@@ -3,14 +3,15 @@ package com.example.kisanhubandroidassignment;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
-import android.view.LayoutInflater;
+import android.widget.Toast;
 
-import java.io.BufferedReader;
+import com.example.kisanhubandroidassignment.data.WeatherDataHelper;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.LineNumberReader;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -18,13 +19,10 @@ import java.nio.charset.Charset;
 
 public class SplashActivity extends AppCompatActivity {
 
-    private static final String WEATHER_URL = "https://www.metoffice.gov.uk/pub/data/weather/uk/climate/datasets/Rainfall/date/UK.txt";
+    private static final String[] REGIONS = {"UK", "England", "Wales", "Scotland"};
+    private static final String[] PARAMETERS = {"Rainfall", "Tmin", "Tmean", "Tmax", "Sunshine"};
 
-    @NonNull
-    @Override
-    public LayoutInflater getLayoutInflater() {
-        return super.getLayoutInflater();
-    }
+    WeatherDataHelper weatherDataHelper = new WeatherDataHelper(this);
 
     static final String EXTRA_WEATHER_DATA = "com.example.kisanhubandroidassignment.WEATHER_DATA";
 
@@ -38,27 +36,61 @@ public class SplashActivity extends AppCompatActivity {
         task.execute();
     }
 
+    public void loadData(String response) {
+//        parse data and load it
+
+        addData("hello");
+
+        showWeatherData(response);
+    }
+
     public void showWeatherData(String response) {
-        Intent intent = new Intent(this, ShowWeatherActivity.class);
-        intent.putExtra(EXTRA_WEATHER_DATA, response);
-        startActivity(intent);
+        if (response != null) {
+            Intent intent = new Intent(this, ShowWeatherActivity.class);
+            intent.putExtra(EXTRA_WEATHER_DATA, response);
+            startActivity(intent);
+        } else {
+            toastMessage("Please check connection!");
+        }
+    }
+
+    public void addData(String newEntry) {
+        boolean insertData = weatherDataHelper.addData(newEntry);
+        if (insertData) {
+            toastMessage("Data added");
+        } else {
+            toastMessage("Not added");
+        }
+    }
+
+    private void toastMessage(String message) {
+        Toast.makeText(this, message, Toast.LENGTH_LONG).show();
     }
 
     private class WeatherLoadingTask extends AsyncTask<URL, Void, String> {
 
         @Override
         protected String doInBackground(URL... urls) {
-            // Create URL object
-            URL url = createUrl(WEATHER_URL);
 
-            // Perform HTTP request to the URL and receive a JSON response back
-            String jsonResponse = "";
-            try {
-                jsonResponse = makeHttpRequest(url);
-            } catch (IOException e) {
-                // TODO Handle the IOException
+            for (String region : REGIONS) {
+                for (String parameter : PARAMETERS) {
+                    String urlString = "https://www.metoffice.gov.uk/pub/data/weather/uk/climate/datasets/" + parameter + "/date/" + region + ".txt";
+                    // Create URL object
+                    URL url = createUrl(urlString);
+
+                    // Perform HTTP request to the URL and receive a JSON response back
+                    InputStream inputStream;
+                    try {
+                        inputStream = makeHttpRequest(url);
+                        readFromStreamAndWrite(inputStream);
+                    } catch (IOException e) {
+                        // TODO Handle the IOException
+                    }
+                }
             }
-            return jsonResponse;
+
+
+            return "";
         }
 
         @Override
@@ -70,19 +102,17 @@ public class SplashActivity extends AppCompatActivity {
          * Returns new URL object from the given string URL.
          */
         private URL createUrl(String stringUrl) {
-            URL url = null;
             try {
-                url = new URL(stringUrl);
+                return new URL(stringUrl);
             } catch (MalformedURLException exception) {
                 return null;
             }
-            return url;
         }
 
         /**
          * Make an HTTP request to the given URL and return a String as the response.
          */
-        private String makeHttpRequest(URL url) throws IOException {
+        private InputStream makeHttpRequest(URL url) throws IOException {
             String jsonResponse = "";
             HttpURLConnection urlConnection = null;
             InputStream inputStream = null;
@@ -93,7 +123,6 @@ public class SplashActivity extends AppCompatActivity {
                 urlConnection.setConnectTimeout(15000 /* milliseconds */);
                 urlConnection.connect();
                 inputStream = urlConnection.getInputStream();
-                jsonResponse = readFromStream(inputStream);
             } catch (IOException e) {
                 // TODO: Handle the exception
             } finally {
@@ -105,25 +134,39 @@ public class SplashActivity extends AppCompatActivity {
                     inputStream.close();
                 }
             }
-            return jsonResponse;
+            return inputStream;
         }
 
         /**
          * Convert the {@link InputStream} into a String which contains the
          * whole JSON response from the server.
          */
-        private String readFromStream(InputStream inputStream) throws IOException {
+        private void readFromStreamAndWrite(InputStream inputStream) throws IOException {
             StringBuilder output = new StringBuilder();
             if (inputStream != null) {
+                String region = "UK";
+                String parameter = "Rainfall";
+
                 InputStreamReader inputStreamReader = new InputStreamReader(inputStream, Charset.forName("UTF-8"));
-                BufferedReader reader = new BufferedReader(inputStreamReader);
+                LineNumberReader reader = new LineNumberReader(inputStreamReader);
                 String line = reader.readLine();
+
                 while (line != null) {
-                    output.append(line);
+                    if (reader.getLineNumber() <= 8) {
+                        line = reader.readLine();
+                        continue;
+                    }
+                    String[] lineElements = line.split("\\s+");
+                    String year = lineElements[0];
+                    String[] months = {"Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec", "Win", "Spr", "Sum", "Aut", "Ann"};
+
+                    for (int i = 1; i <= lineElements.length; i++) {
+                        String month = months[i - 1];
+                        String value = lineElements[i];
+                    }
                     line = reader.readLine();
                 }
             }
-            return output.toString();
         }
     }
 }

@@ -26,7 +26,7 @@
         android:layout_height="wrap_content"
         android:text="@string/loading_data"
         android:textColor="#193a08"
-        android:textSize="15sp"
+        android:textSize="20sp"
         android:textStyle="italic"
         app:fontFamily="cursive"
         app:layout_constraintLeft_toLeftOf="parent"
