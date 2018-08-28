@@ -8,33 +8,51 @@ import android.database.sqlite.SQLiteOpenHelper;
 public class WeatherDataHelper extends SQLiteOpenHelper {
 
 
-    private static final String TABLE_NAME = "dummy";
-//    private static final String COL1 = "col1";
-    private static final String COL2 = "col2";
+    private static final String DATABASE_NAME = "weather.db";
+    private static final int DATABASE_VERSION = 1;
+
+    private static final String WEATHER_TABLE_NAME = "weather";
+    private static final String ID_COLUMN_NAME = "_id";
+    private static final String REGION_COLUMN_NAME = "region";
+    private static final String PARAMETER_COLUMN_NAME = "parameter";
+    private static final String YEAR_COLUMN_NAME = "year";
+    private static final String MONTH_COLUMN_NAME = "month";
+    private static final String VALUE_COLUMN_NAME = "value";
+
 
     public WeatherDataHelper(Context context) {
-        super(context, TABLE_NAME, null, 1);
+        super(context, DATABASE_NAME, null, DATABASE_VERSION);
     }
 
     @Override
     public void onCreate(SQLiteDatabase sqLiteDatabase) {
-        String createTable = "CREATE TABLE " + TABLE_NAME + " (ID INTEGER PRIMARY KEY AUTOINCREMENT, " + COL2 + " TEXT)";
+        String createTable = "CREATE TABLE " + WEATHER_TABLE_NAME +
+                " (" + ID_COLUMN_NAME + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                REGION_COLUMN_NAME + " TEXT, " +
+                PARAMETER_COLUMN_NAME + " TEXT, " +
+                YEAR_COLUMN_NAME + " INTEGER, " +
+                MONTH_COLUMN_NAME + " TEXT, " +
+                VALUE_COLUMN_NAME + " DOUBLE" + ");";
         sqLiteDatabase.execSQL(createTable);
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase sqLiteDatabase, int i, int i1) {
-        String dropTable = "DROP TABLE IF EXISTS " + TABLE_NAME + ";";
+        String dropTable = "DROP TABLE IF EXISTS " + WEATHER_TABLE_NAME + ";";
         sqLiteDatabase.execSQL(dropTable);
         onCreate(sqLiteDatabase);
     }
 
-    public boolean addData(String item) {
+    public boolean writeWeatherData(String region, String parameter, int year, String month, double value) {
         SQLiteDatabase db = getWritableDatabase();
         ContentValues contentValues = new ContentValues();
-        contentValues.put(COL2, item);
+        contentValues.put(REGION_COLUMN_NAME, region);
+        contentValues.put(PARAMETER_COLUMN_NAME, parameter);
+        contentValues.put(YEAR_COLUMN_NAME, year);
+        contentValues.put(MONTH_COLUMN_NAME, month);
+        contentValues.put(VALUE_COLUMN_NAME, value);
 
-        long result = db.insert(TABLE_NAME, null, contentValues);
+        long result = db.insert(WEATHER_TABLE_NAME, null, contentValues);
         return result > -1;
     }
 }

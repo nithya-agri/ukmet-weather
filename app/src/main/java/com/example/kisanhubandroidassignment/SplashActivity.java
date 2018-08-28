@@ -8,10 +8,10 @@ import android.widget.Toast;
 
 import com.example.kisanhubandroidassignment.data.WeatherDataHelper;
 
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.LineNumberReader;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -36,14 +36,6 @@ public class SplashActivity extends AppCompatActivity {
         task.execute();
     }
 
-    public void loadData(String response) {
-//        parse data and load it
-
-        addData("hello");
-
-        showWeatherData(response);
-    }
-
     public void showWeatherData(String response) {
         if (response != null) {
             Intent intent = new Intent(this, ShowWeatherActivity.class);
@@ -51,15 +43,6 @@ public class SplashActivity extends AppCompatActivity {
             startActivity(intent);
         } else {
             toastMessage("Please check connection!");
-        }
-    }
-
-    public void addData(String newEntry) {
-        boolean insertData = weatherDataHelper.addData(newEntry);
-        if (insertData) {
-            toastMessage("Data added");
-        } else {
-            toastMessage("Not added");
         }
     }
 
@@ -71,26 +54,22 @@ public class SplashActivity extends AppCompatActivity {
 
         @Override
         protected String doInBackground(URL... urls) {
-
             for (String region : REGIONS) {
                 for (String parameter : PARAMETERS) {
-                    String urlString = "https://www.metoffice.gov.uk/pub/data/weather/uk/climate/datasets/" + parameter + "/date/" + region + ".txt";
                     // Create URL object
-                    URL url = createUrl(urlString);
+                    URL url = createUrl("https://www.metoffice.gov.uk/pub/data/weather/uk/climate/datasets/" + parameter + "/date/" + region + ".txt");
 
                     // Perform HTTP request to the URL and receive a JSON response back
-                    InputStream inputStream;
+                    String jsonResponse = "";
                     try {
-                        inputStream = makeHttpRequest(url);
-                        readFromStreamAndWrite(inputStream);
+                        jsonResponse = makeHttpRequest(url);
                     } catch (IOException e) {
                         // TODO Handle the IOException
                     }
                 }
             }
 
-
-            return "";
+            return "Success";
         }
 
         @Override
@@ -112,7 +91,7 @@ public class SplashActivity extends AppCompatActivity {
         /**
          * Make an HTTP request to the given URL and return a String as the response.
          */
-        private InputStream makeHttpRequest(URL url) throws IOException {
+        private String makeHttpRequest(URL url) throws IOException {
             String jsonResponse = "";
             HttpURLConnection urlConnection = null;
             InputStream inputStream = null;
@@ -123,6 +102,7 @@ public class SplashActivity extends AppCompatActivity {
                 urlConnection.setConnectTimeout(15000 /* milliseconds */);
                 urlConnection.connect();
                 inputStream = urlConnection.getInputStream();
+                jsonResponse = readFromStream(inputStream);
             } catch (IOException e) {
                 // TODO: Handle the exception
             } finally {
@@ -134,39 +114,48 @@ public class SplashActivity extends AppCompatActivity {
                     inputStream.close();
                 }
             }
-            return inputStream;
+            return jsonResponse;
         }
 
         /**
          * Convert the {@link InputStream} into a String which contains the
          * whole JSON response from the server.
          */
-        private void readFromStreamAndWrite(InputStream inputStream) throws IOException {
+        private String readFromStream(InputStream inputStream) throws IOException {
             StringBuilder output = new StringBuilder();
             if (inputStream != null) {
-                String region = "UK";
-                String parameter = "Rainfall";
-
                 InputStreamReader inputStreamReader = new InputStreamReader(inputStream, Charset.forName("UTF-8"));
-                LineNumberReader reader = new LineNumberReader(inputStreamReader);
+                BufferedReader reader = new BufferedReader(inputStreamReader);
                 String line = reader.readLine();
-
+                int lineNo = 1;
                 while (line != null) {
-                    if (reader.getLineNumber() <= 8) {
+
+                    if (lineNo <= 8) {
+                        lineNo++;
                         line = reader.readLine();
                         continue;
                     }
                     String[] lineElements = line.split("\\s+");
                     String year = lineElements[0];
+                    String region = "UK";
+                    String parameter = "Sunshine";
                     String[] months = {"Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec", "Win", "Spr", "Sum", "Aut", "Ann"};
 
-                    for (int i = 1; i <= lineElements.length; i++) {
+                    for (int i = 1; i < lineElements.length; i++) {
                         String month = months[i - 1];
+
                         String value = lineElements[i];
+                        if (value.equals("---")) {
+                            continue;
+                        }
+                        weatherDataHelper.writeWeatherData(region, parameter, Integer.parseInt(year), month, Double.parseDouble(value));
                     }
+                    output.append(line);
+                    lineNo++;
                     line = reader.readLine();
                 }
             }
+            return output.toString();
         }
     }
 }
