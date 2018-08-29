@@ -57,10 +57,11 @@ public class WeatherDataHelper extends SQLiteOpenHelper {
         return result > -1;
     }
 
-    public Cursor getWeatherData() {
+    public int getWeatherDataCount() {
         SQLiteDatabase db = getReadableDatabase();
         String query = "SELECT * FROM " + WEATHER_TABLE_NAME + ";";
-        return db.rawQuery(query, null);
+        Cursor cursor = db.rawQuery(query, null);
+        return cursor.getCount();
     }
 
     public Cursor getWeatherDataForRegionAndParameter(String region, String parameter) {

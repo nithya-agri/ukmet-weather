@@ -45,12 +45,14 @@
             android:id="@+id/regions_spinner"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="1"/>
+            android:layout_weight="1"
+            android:entries="@array/regions_array"/>
         <Spinner
             android:id="@+id/parameters_spinner"
             android:layout_width="0dp"
             android:layout_weight="1"
-            android:layout_height="wrap_content"/>
+            android:layout_height="wrap_content"
+            android:entries="@array/parameters_array"/>
     </LinearLayout>
 
     <TextView

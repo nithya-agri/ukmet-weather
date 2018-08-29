@@ -3,6 +3,7 @@
     <string name="uk_met_office">UK Met Office</string>
     <string name="loading_data">Loading data...</string>
     <string name="show_weather">Show</string>
+    <string name="no_of_rows">No of rows:</string>
     <string-array name="regions_array">
         <item>UK</item>
         <item>England</item>

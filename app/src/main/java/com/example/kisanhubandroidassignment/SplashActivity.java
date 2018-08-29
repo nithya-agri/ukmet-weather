@@ -50,32 +50,45 @@ public class SplashActivity extends AppCompatActivity {
 
         @Override
         protected String doInBackground(URL... urls) {
-            for (String region : REGIONS) {
-                for (String parameter : PARAMETERS) {
-                    // Create URL object
-                    URL url = createUrl("https://www.metoffice.gov.uk/pub/data/weather/uk/climate/datasets/" + parameter + "/date/" + region + ".txt");
 
-                    if (url == null) {
-                        continue;
-                    }
-                    // Perform HTTP request to the URL and save the response
-                    try {
-                        InputStream inputStream = makeHttpRequest(url);
-                        readFromStream(inputStream, region, parameter);
-                        inputStream.close();
-                    } catch (IOException e) {
-                        return "Failed: " + e.getMessage();
+            boolean dataAvailable = checkIfThereIsData();
+            if (!dataAvailable) {
+                for (String region : REGIONS) {
+                    for (String parameter : PARAMETERS) {
+                        // Create URL object
+                        URL url = createUrl("https://www.metoffice.gov.uk/pub/data/weather/uk/climate/datasets/" + parameter + "/date/" + region + ".txt");
+
+                        if (url == null) {
+                            continue;
+                        }
+                        // Perform HTTP request to the URL and save the response
+                        try {
+                            InputStream inputStream = makeHttpRequest(url);
+                            readFromStream(inputStream, region, parameter);
+                        } catch (IOException e) {
+                            return "Failed: " + e.getMessage();
+                        }
                     }
                 }
-            }
 
-            return "Success";
+                return "Data successfully loaded";
+            } else {
+                return "Data already loaded!";
+            }
         }
 
         @Override
         protected void onPostExecute(String response) {
             showWeatherData(response);
         }
+
+
+        private boolean checkIfThereIsData() {
+            int count = weatherDataHelper.getWeatherDataCount();
+            return count > 0;
+
+        }
+
 
         /**
          * Returns new URL object from the given string URL.
