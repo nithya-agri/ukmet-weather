@@ -2,6 +2,7 @@ package com.example.kisanhubandroidassignment.data;
 
 import android.content.ContentValues;
 import android.content.Context;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
@@ -54,5 +55,17 @@ public class WeatherDataHelper extends SQLiteOpenHelper {
 
         long result = db.insert(WEATHER_TABLE_NAME, null, contentValues);
         return result > -1;
+    }
+
+    public Cursor getWeatherData() {
+        SQLiteDatabase db = getReadableDatabase();
+        String query = "SELECT * FROM " + WEATHER_TABLE_NAME + ";";
+        return db.rawQuery(query, null);
+    }
+
+    public Cursor getWeatherDataForRegionAndParameter(String region, String parameter) {
+        SQLiteDatabase db = getReadableDatabase();
+        String query = "SELECT * FROM " + WEATHER_TABLE_NAME + " WHERE " + REGION_COLUMN_NAME + "=" + region + " AND " + PARAMETER_COLUMN_NAME + "=" + parameter + ";";
+        return db.rawQuery(query, null);
     }
 }

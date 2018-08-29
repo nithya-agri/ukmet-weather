@@ -37,13 +37,9 @@ public class SplashActivity extends AppCompatActivity {
     }
 
     public void showWeatherData(String response) {
-        if (response != null) {
-            Intent intent = new Intent(this, ShowWeatherActivity.class);
-            intent.putExtra(EXTRA_WEATHER_DATA, response);
-            startActivity(intent);
-        } else {
-            toastMessage("Please check connection!");
-        }
+        Intent intent = new Intent(this, ShowWeatherActivity.class);
+        intent.putExtra(EXTRA_WEATHER_DATA, response);
+        startActivity(intent);
     }
 
     private void toastMessage(String message) {
@@ -59,12 +55,16 @@ public class SplashActivity extends AppCompatActivity {
                     // Create URL object
                     URL url = createUrl("https://www.metoffice.gov.uk/pub/data/weather/uk/climate/datasets/" + parameter + "/date/" + region + ".txt");
 
-                    // Perform HTTP request to the URL and receive a JSON response back
-                    String jsonResponse = "";
+                    if (url == null) {
+                        continue;
+                    }
+                    // Perform HTTP request to the URL and save the response
                     try {
-                        jsonResponse = makeHttpRequest(url);
+                        InputStream inputStream = makeHttpRequest(url);
+                        readFromStream(inputStream, region, parameter);
+                        inputStream.close();
                     } catch (IOException e) {
-                        // TODO Handle the IOException
+                        return "Failed: " + e.getMessage();
                     }
                 }
             }
@@ -91,8 +91,7 @@ public class SplashActivity extends AppCompatActivity {
         /**
          * Make an HTTP request to the given URL and return a String as the response.
          */
-        private String makeHttpRequest(URL url) throws IOException {
-            String jsonResponse = "";
+        private InputStream makeHttpRequest(URL url) throws IOException {
             HttpURLConnection urlConnection = null;
             InputStream inputStream = null;
             try {
@@ -102,27 +101,17 @@ public class SplashActivity extends AppCompatActivity {
                 urlConnection.setConnectTimeout(15000 /* milliseconds */);
                 urlConnection.connect();
                 inputStream = urlConnection.getInputStream();
-                jsonResponse = readFromStream(inputStream);
             } catch (IOException e) {
                 // TODO: Handle the exception
             } finally {
                 if (urlConnection != null) {
                     urlConnection.disconnect();
                 }
-                if (inputStream != null) {
-                    // function must handle java.io.IOException here
-                    inputStream.close();
-                }
             }
-            return jsonResponse;
+            return inputStream;
         }
 
-        /**
-         * Convert the {@link InputStream} into a String which contains the
-         * whole JSON response from the server.
-         */
-        private String readFromStream(InputStream inputStream) throws IOException {
-            StringBuilder output = new StringBuilder();
+        private void readFromStream(InputStream inputStream, String region, String parameter) throws IOException {
             if (inputStream != null) {
                 InputStreamReader inputStreamReader = new InputStreamReader(inputStream, Charset.forName("UTF-8"));
                 BufferedReader reader = new BufferedReader(inputStreamReader);
@@ -137,8 +126,6 @@ public class SplashActivity extends AppCompatActivity {
                     }
                     String[] lineElements = line.split("\\s+");
                     String year = lineElements[0];
-                    String region = "UK";
-                    String parameter = "Sunshine";
                     String[] months = {"Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec", "Win", "Spr", "Sum", "Aut", "Ann"};
 
                     for (int i = 1; i < lineElements.length; i++) {
@@ -150,12 +137,10 @@ public class SplashActivity extends AppCompatActivity {
                         }
                         weatherDataHelper.writeWeatherData(region, parameter, Integer.parseInt(year), month, Double.parseDouble(value));
                     }
-                    output.append(line);
                     lineNo++;
                     line = reader.readLine();
                 }
             }
-            return output.toString();
         }
     }
 }

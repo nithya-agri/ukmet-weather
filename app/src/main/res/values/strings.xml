@@ -2,4 +2,18 @@
     <string name="app_name">KisanHub Android Assignment</string>
     <string name="uk_met_office">UK Met Office</string>
     <string name="loading_data">Loading data...</string>
+    <string name="show_weather">Show</string>
+    <string-array name="regions_array">
+        <item>UK</item>
+        <item>England</item>
+        <item>Wales</item>
+        <item>Scotland</item>
+    </string-array>
+    <string-array name="parameters_array">
+        <item>Rainfall</item>
+        <item>Tmin</item>
+        <item>Tmean</item>
+        <item>Tmax</item>
+        <item>Sunshine</item>
+    </string-array>
 </resources>
