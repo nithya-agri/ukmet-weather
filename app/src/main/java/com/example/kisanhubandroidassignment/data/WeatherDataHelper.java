@@ -61,12 +61,17 @@ public class WeatherDataHelper extends SQLiteOpenHelper {
         SQLiteDatabase db = getReadableDatabase();
         String query = "SELECT * FROM " + WEATHER_TABLE_NAME + ";";
         Cursor cursor = db.rawQuery(query, null);
-        return cursor.getCount();
+        int count = cursor.getCount();
+        cursor.close();
+        return count;
     }
 
-    public Cursor getWeatherDataForRegionAndParameter(String region, String parameter) {
+    public Cursor getWeatherDataForRegionParameterAndYear(String region, String parameter, int year) {
         SQLiteDatabase db = getReadableDatabase();
-        String query = "SELECT * FROM " + WEATHER_TABLE_NAME + " WHERE " + REGION_COLUMN_NAME + "=" + region + " AND " + PARAMETER_COLUMN_NAME + "=" + parameter + ";";
+        String query = "SELECT * FROM " + WEATHER_TABLE_NAME + " WHERE "
+                + REGION_COLUMN_NAME + "='" + region + "' AND "
+                + PARAMETER_COLUMN_NAME + "='" + parameter + "' AND "
+                + YEAR_COLUMN_NAME + "=" + year + ";";
         return db.rawQuery(query, null);
     }
 }

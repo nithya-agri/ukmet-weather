@@ -1,6 +1,7 @@
 package com.example.kisanhubandroidassignment;
 
 import android.content.Intent;
+import android.database.Cursor;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
@@ -10,6 +11,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.kisanhubandroidassignment.data.WeatherDataHelper;
+import com.michaelmuenzer.android.scrollablennumberpicker.ScrollableNumberPicker;
+import com.michaelmuenzer.android.scrollablennumberpicker.ScrollableNumberPickerListener;
 
 public class ShowWeatherActivity extends AppCompatActivity {
 
@@ -27,7 +30,7 @@ public class ShowWeatherActivity extends AppCompatActivity {
         String message = intent.getStringExtra(SplashActivity.EXTRA_WEATHER_DATA);
         showDataLoadedMessage(message);
 
-        Spinner regionSpinner = (Spinner) findViewById(R.id.regions_spinner);
+        Spinner regionSpinner = findViewById(R.id.regions_spinner);
         regionSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
@@ -43,28 +46,53 @@ public class ShowWeatherActivity extends AppCompatActivity {
             }
 
         });
+
+
+        Spinner parameterSpinner = findViewById(R.id.parameters_spinner);
+        parameterSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                showDataForFilters();
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView) {
+
+            }
+
+        });
+
+        ScrollableNumberPicker yearPicker = findViewById(R.id.year_picker);
+        yearPicker.setListener(new ScrollableNumberPickerListener() {
+            @Override
+            public void onNumberPicked(int value) {
+                showDataForFilters();
+            }
+        });
     }
 
 
     private void showDataForFilters() {
 
-        int count = weatherDataHelper.getWeatherDataCount();
+        Spinner regionSpinner = findViewById(R.id.regions_spinner);
+        String region = regionSpinner.getSelectedItem().toString();
+        Spinner parameterSpinner = findViewById(R.id.parameters_spinner);
+        String parameter = parameterSpinner.getSelectedItem().toString();
+        ScrollableNumberPicker yearPicker = findViewById(R.id.year_picker);
+        int year = yearPicker.getValue();
+        Toast.makeText(getBaseContext(), region + " - " + parameter + " - " + year, Toast.LENGTH_LONG).show();
 
-//        TextView[] textViewArray = new TextView[count];
-//
-//        for (int i = 0; i < count; i++) {
-//            textViewArray[i] = new TextView(this);
-//        }
+        Cursor cursor = weatherDataHelper.getWeatherDataForRegionParameterAndYear(region, parameter, year);
+        TextView textView1 = findViewById(R.id.weather_data_text_view1);
+        textView1.setText(getString(R.string.no_of_rows) + cursor.getCount());
 
-
-        TextView textView1 = (TextView) findViewById(R.id.weather_data_text_view1);
-        textView1.setText(getString(R.string.no_of_rows) + count);
+        cursor.close();
     }
 
     private void showDataLoadedMessage(String message) {
 
 //        capture the layout's text view and set the string as its text
-        TextView textView = (TextView) findViewById(R.id.weather_data_text_view);
+        TextView textView = findViewById(R.id.weather_data_text_view);
         textView.setText(message);
 
     }
