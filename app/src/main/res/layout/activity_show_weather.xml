@@ -35,31 +35,47 @@
         app:layout_constraintTop_toBottomOf="@id/weather_data_text_view" />
 
     <LinearLayout
+        android:id="@+id/filters_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
         android:layout_margin="8dp"
-        android:id="@+id/filters_layout"
+        android:orientation="horizontal"
         app:layout_constraintTop_toBottomOf="@id/weather_data_text_view1">
+
         <Spinner
             android:id="@+id/regions_spinner"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:entries="@array/regions_array"/>
+            android:entries="@array/regions_array" />
+
         <Spinner
             android:id="@+id/parameters_spinner"
             android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:entries="@array/parameters_array" />
+
+        <com.michaelmuenzer.android.scrollablennumberpicker.ScrollableNumberPicker
+            android:id="@+id/year_picker"
+            android:layout_width="0dp"
             android:layout_weight="1"
             android:layout_height="wrap_content"
-            android:entries="@array/parameters_array"/>
+            app:snp_scrollEnabled="true"
+            app:snp_maxValue="2018"
+            app:snp_minValue="1929"
+            app:snp_stepSize="1"
+            app:snp_updateInterval="100"
+            app:snp_value="2000"/>
     </LinearLayout>
 
-    <TextView
-        android:layout_width="match_parent"
+    <ListView
+        android:id="@+id/weather_data_list_view"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/weather_data_text_view2"
-        app:layout_constraintTop_toBottomOf="@id/filters_layout"/>
+        app:layout_constraintTop_toBottomOf="@id/filters_layout">
 
+
+    </ListView>
 
 </android.support.constraint.ConstraintLayout>

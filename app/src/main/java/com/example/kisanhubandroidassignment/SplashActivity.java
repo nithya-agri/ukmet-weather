@@ -153,6 +153,7 @@ public class SplashActivity extends AppCompatActivity {
                     lineNo++;
                     line = reader.readLine();
                 }
+                inputStream.close();
             }
         }
     }
