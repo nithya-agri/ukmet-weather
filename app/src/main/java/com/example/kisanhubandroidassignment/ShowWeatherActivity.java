@@ -96,9 +96,8 @@ public class ShowWeatherActivity extends AppCompatActivity {
             selectedParameter = parameter;
             selectedYear = year;
             Cursor cursor = weatherDataHelper.getWeatherDataForRegionParameterAndYear(region, parameter, year);
-            TextView textView1 = findViewById(R.id.weather_data_count_view);
-            String noOfRows = getString(R.string.no_of_rows) + getString(cursor.getCount());
-            textView1.setText(noOfRows);
+            TextView dataCountView = findViewById(R.id.weather_data_count_view);
+            dataCountView.setText(getString(R.string.no_of_rows) + cursor.getCount());
 
             ListView listView = findViewById(R.id.weather_data_list_view);
 
