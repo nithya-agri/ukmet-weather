@@ -17,8 +17,8 @@ public class WeatherDataHelper extends SQLiteOpenHelper {
     private static final String REGION_COLUMN_NAME = "region";
     private static final String PARAMETER_COLUMN_NAME = "parameter";
     private static final String YEAR_COLUMN_NAME = "year";
-    private static final String MONTH_COLUMN_NAME = "month";
-    private static final String VALUE_COLUMN_NAME = "value";
+    public static final String MONTH_COLUMN_NAME = "month";
+    public static final String VALUE_COLUMN_NAME = "value";
 
 
     public WeatherDataHelper(Context context) {

@@ -6,6 +6,9 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.ListAdapter;
+import android.widget.ListView;
+import android.widget.SimpleCursorAdapter;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -14,9 +17,15 @@ import com.example.kisanhubandroidassignment.data.WeatherDataHelper;
 import com.michaelmuenzer.android.scrollablennumberpicker.ScrollableNumberPicker;
 import com.michaelmuenzer.android.scrollablennumberpicker.ScrollableNumberPickerListener;
 
+import static com.example.kisanhubandroidassignment.data.WeatherDataHelper.MONTH_COLUMN_NAME;
+import static com.example.kisanhubandroidassignment.data.WeatherDataHelper.VALUE_COLUMN_NAME;
+
 public class ShowWeatherActivity extends AppCompatActivity {
 
     WeatherDataHelper weatherDataHelper = new WeatherDataHelper(this);
+    private String selectedRegion = "";
+    private String selectedParameter = "";
+    private int selectedYear;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -82,17 +91,37 @@ public class ShowWeatherActivity extends AppCompatActivity {
         int year = yearPicker.getValue();
         Toast.makeText(getBaseContext(), region + " - " + parameter + " - " + year, Toast.LENGTH_LONG).show();
 
-        Cursor cursor = weatherDataHelper.getWeatherDataForRegionParameterAndYear(region, parameter, year);
-        TextView textView1 = findViewById(R.id.weather_data_text_view1);
-        textView1.setText(getString(R.string.no_of_rows) + cursor.getCount());
+        if (!selectedRegion.equals(region) || !selectedParameter.equals(parameter) || !(selectedYear == year)) {
+            selectedRegion = region;
+            selectedParameter = parameter;
+            selectedYear = year;
+            Cursor cursor = weatherDataHelper.getWeatherDataForRegionParameterAndYear(region, parameter, year);
+            TextView textView1 = findViewById(R.id.weather_data_count_view);
+            String noOfRows = getString(R.string.no_of_rows) + getString(cursor.getCount());
+            textView1.setText(noOfRows);
 
-        cursor.close();
+            ListView listView = findViewById(R.id.weather_data_list_view);
+
+            String[] columns = {
+                    MONTH_COLUMN_NAME,
+                    VALUE_COLUMN_NAME
+            };
+            int[] resourceIds = {
+                    R.id.month_text_view,
+                    R.id.value_text_view
+            };
+
+            ListAdapter listAdapter = new SimpleCursorAdapter(this, R.layout.weather_data_row, cursor, columns, resourceIds, 0);
+            listView.setAdapter(listAdapter);
+
+        }
+
     }
 
     private void showDataLoadedMessage(String message) {
 
 //        capture the layout's text view and set the string as its text
-        TextView textView = findViewById(R.id.weather_data_text_view);
+        TextView textView = findViewById(R.id.weather_data_message_view);
         textView.setText(message);
 
     }

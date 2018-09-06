@@ -8,7 +8,7 @@
 
 
     <TextView
-        android:id="@+id/weather_data_text_view"
+        android:id="@+id/weather_data_message_view"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="16dp"
@@ -22,7 +22,7 @@
 
 
     <TextView
-        android:id="@+id/weather_data_text_view1"
+        android:id="@+id/weather_data_count_view"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="16dp"
@@ -32,7 +32,7 @@
         android:layout_marginTop="16dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/weather_data_text_view" />
+        app:layout_constraintTop_toBottomOf="@id/weather_data_message_view" />
 
     <LinearLayout
         android:id="@+id/filters_layout"
@@ -40,7 +40,7 @@
         android:layout_height="wrap_content"
         android:layout_margin="8dp"
         android:orientation="horizontal"
-        app:layout_constraintTop_toBottomOf="@id/weather_data_text_view1">
+        app:layout_constraintTop_toBottomOf="@id/weather_data_count_view">
 
         <Spinner
             android:id="@+id/regions_spinner"
@@ -71,9 +71,10 @@
 
     <ListView
         android:id="@+id/weather_data_list_view"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:layout_constraintTop_toBottomOf="@id/filters_layout">
+        app:layout_constraintTop_toBottomOf="@id/filters_layout"
+        android:padding="16dp">
 
 
     </ListView>
